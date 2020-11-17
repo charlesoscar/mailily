@@ -27,6 +27,7 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
     }
 
     public render() {
+        console.log(this.props.emails)
         return (
             <React.Fragment>
                 <h1>Mailily mail extractor tool</h1>
@@ -34,7 +35,8 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
 
                 <input onChange={(e) => {this.setState({ input: e.target.value})}} type="text"></input>
                 <button onClick={() => {this.props.requestEmailsFromWebsite(this.state.input)}} ></button>
-                <p>{this.props.emails.map(email => <p>{email}</p>)}</p>
+                
+                {this.props.emails.map(email => <p>{email}</p>)}
             </React.Fragment>
         )
     }

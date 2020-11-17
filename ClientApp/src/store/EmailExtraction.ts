@@ -1,4 +1,5 @@
 import { Action, Reducer } from 'redux'
+import { EmailExtractorResponse } from '../models/EmailExtractionResponse';
 import { AppThunkAction } from './'
 
 //STATE
@@ -31,8 +32,8 @@ export const actionCreators = {
             const response = await fetch(`api/emailextraction?website=${websiteUrl}`);
             if (response.ok) {
                 console.log(response);
-                const data = await response.json() as string[]
-                dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: data });
+                const data = await response.json() as EmailExtractorResponse
+                dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: data.emails });
             } else {
                 console.log('failed to call api', response)
             }
