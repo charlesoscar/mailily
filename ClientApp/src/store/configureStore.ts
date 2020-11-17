@@ -9,7 +9,7 @@ export default function configureStore(history: History, initialState?: Applicat
         thunk,
         routerMiddleware(history)
     ];
-
+        
     const rootReducer = combineReducers({
         ...reducers,
         router: connectRouter(history)

@@ -6,7 +6,13 @@ import { AppThunkAction } from './'
 export interface EmailExtractionState {
     isLoading: boolean;
     websiteUrl: string;
-    emails: string[];
+    emails: EmailInfo[];
+}
+
+export interface EmailInfo {
+    id: string,
+    email: string,
+    website: string
 }
 
 //ACTIONS
@@ -16,11 +22,16 @@ interface RequestEmailsFromWebsiteAction {
 }
 interface RecieveEmailsFromWebsiteAction {
     type: 'RECIEVE_EMAILS_WEBSITE';
-    emails: string[];
+    emails: EmailInfo[];
+}
+
+interface RemoveEmailFromListAction {
+    type: 'REMOVE_EMAIL_FROM_LIST';
+    emails: EmailInfo[];
 }
 
 //Not needing union type right now
-type KnownAction = RequestEmailsFromWebsiteAction | RecieveEmailsFromWebsiteAction;
+type KnownAction = RequestEmailsFromWebsiteAction | RecieveEmailsFromWebsiteAction | RemoveEmailFromListAction;
 
 //ACTION CREATOR
 export const actionCreators = {
@@ -33,11 +44,24 @@ export const actionCreators = {
             if (response.ok) {
                 console.log(response);
                 const data = await response.json() as EmailExtractorResponse
-                dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: data.emails });
+                
+                console.log("fetch from api")
+                console.log(data);
+                console.log(data.email)
+                console.log(appState.emails!.emails)
+                console.log(data.email)
+                console.log(appState.emails!.emails.concat(data.email))
+                dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: appState.emails!.emails.concat(data.email)});
             } else {
                 console.log('failed to call api', response)
             }
         }
+    },
+    removeEmailFromList: (id: string): AppThunkAction<KnownAction> => async (dispatch, getState) => {
+        const appState = getState();
+        const newEmails = appState.emails!.emails.filter(e => e.id !== id)
+
+        dispatch({type: 'REMOVE_EMAIL_FROM_LIST', emails: newEmails});
     }
 };
 
@@ -46,6 +70,7 @@ const unloadState: EmailExtractionState = { emails: [], isLoading: false, websit
 
 export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionState | undefined, incomingAction: Action): EmailExtractionState => {
     if (state === undefined) {
+        console.log('state is undefined')
         return unloadState
     }
 
@@ -59,11 +84,19 @@ export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionSta
             };
         case 'RECIEVE_EMAILS_WEBSITE':
             //handle out of order responses
+            console.log("ACTION EMAIL",action.emails)
             return {
+                
+                ...state,           
                 isLoading: false,
                 emails: action.emails,
-                websiteUrl: 'clear'
+                websiteUrl: ''
             };
+        case 'REMOVE_EMAIL_FROM_LIST':
+            return {
+                ...state,
+                emails: action.emails
+            }
         default:
             return state;
 

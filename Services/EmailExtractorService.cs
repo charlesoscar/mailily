@@ -1,4 +1,5 @@
-﻿using Mailily.Services.Exceptions;
+﻿using Mailily.Contracts;
+using Mailily.Services.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Mailily.Services
 {
     public class EmailExtractorService : IEmailExtractorService
     {
-        public List<string> ExtractEmailsFromWebsite(string website)
+        public List<EmailInfo> ExtractEmailsFromWebsite(string website)
         {
             var content = GetContent(website);
 
@@ -23,14 +24,19 @@ namespace Mailily.Services
 
             Match match = regExpr.Match(content);
 
-            var emails = new List<string>();
+            var emails = new List<EmailInfo>();
 
             while (match.Success)
             {
                                 
-                if(!emails.Any(email => email == match.Groups[0].Value))
+                if(!emails.Any(email => email.Email == match.Groups[0].Value))
                 {
-                    emails.Add(match.Groups[0].Value);
+                    emails.Add(new EmailInfo
+                    {
+                        Email = match.Groups[0].Value,
+                        Website = website,
+                        id = Guid.NewGuid()
+                    });
                 }
 
                 match = match.NextMatch();

@@ -33,7 +33,7 @@ namespace Mailily.Controllers
 
                 var response = new EmailResultResponse()
                 {
-                    Emails = emails
+                    Email = emails
                 };
 
                 return response;

@@ -1,3 +1,6 @@
+import { EmailInfo } from "../store/EmailExtraction";
+
 export interface EmailExtractorResponse {
-    emails: string[];
+    email: EmailInfo[];
 }
+
