@@ -21,7 +21,7 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
 
     // This method is called when the component is first added to the document
     public componentDidMount() {
-
+        this.setState({ input: '' });
     }
 
     // This method is called when the route parameters change
@@ -33,33 +33,55 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
         console.log(this.props.emails)
         return (
             <React.Fragment>
+                {this.props.hasError ? <div className="alert alert-danger">{this.props.errorMessage}</div> : null}
                 <div className="row">
                     <div className="col-6">
                         <h1>Mailily mail extractor tool</h1>
                         <p>Enter a website URL</p>
                         <div className="d-flex">
                             <input
-                                className="flex-grow-1"
+                                className="flex-grow-1 mr-1"
                                 onChange={(e) => { this.setState({ input: e.target.value }) }}
                                 type="text"
                             ></input>
-                            <button
-                                className="btn btn-success"
-                                onClick={() => { this.props.requestEmailsFromWebsite(this.state.input) }}
-                            >Find email!</button>
+                            {this.props.isLoading ? this.renderLoadingButton() : this.renderFindButton()}
                         </div>
                     </div>
                     <div className="col-6">
+
+                    </div>
+                </div>
+                <div className="row mt-5">
+                    <div className="col-12">
                         <div className="d-flex align-items-center h-100 justify-content-center">
-                            <div>
-                                {this.props.isLoading ? this.renderSpinner() : this.renderEmails()}
+                            <div className="w-75">
+                                {this.renderEmails()}
                             </div>
                         </div>
                     </div>
                 </div>
-
-
             </React.Fragment>
+        )
+    }
+
+    private renderFindButton() {
+        return (
+            <button className="btn btn-primary" type="button"
+                onClick={() => { this.props.requestEmailsFromWebsite(this.state.input) }}>
+                <span role="status" aria-hidden="true"></span>
+                <span className="sr-only">Find emails!</span>
+                Find emails!
+            </button>
+        )
+    }
+
+    private renderLoadingButton() {
+        return (
+            <button className="btn btn-primary" type="button" disabled>
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span className="sr-only">Loading...</span>
+                Loading...
+            </button>
         )
     }
 
@@ -75,27 +97,29 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
                     </tr>
                 </thead>
                 <tbody>
-                    {(this.props.emails.length === 0) ? <tr></tr>: this.props.emails.map((email, index) => this.renderRow(email, index))}                    
+                    {this.props.emails.map((email, index) => this.renderRow(email, index))}
                 </tbody>
             </table>
         )
     }
 
-    private renderRow(email: EmailExtractionStore.EmailInfo, index: number){
-        return(
-        <tr key={email.id}>
-            <th scope="row">{index}</th>
-            <td>{email.email}</td>
-            <td>{email.website}</td>
-            <td><button onClick={() => this.props.removeEmailFromList(email.id)} className="btn btn-danger">Delete</button></td>
-        </tr>
+    private renderRow(email: EmailExtractionStore.EmailInfo, index: number) {
+        return (
+            <tr key={email.id}>
+                <th scope="row">{index}</th>
+                <td>{email.email}</td>
+                <td>{email.website}</td>
+                <td><button onClick={() => this.props.removeEmailFromList(email.id)} className="btn btn-danger">Delete</button></td>
+            </tr>
         )
     }
 
     private renderSpinner() {
         return (
-            <div className="spinner-border text-success" role="status">
-                <span className="sr-only">Loading...</span>
+            <div className="">
+                <div className="spinner-border text-white" role="status">
+                    <span className="sr-only">Loading...</span>
+                </div>
             </div>
         )
     }

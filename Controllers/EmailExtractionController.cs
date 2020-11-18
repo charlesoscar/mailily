@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks;
 using Mailily.Contracts;
+using Mailily.Contracts.Errors;
 using Mailily.Services;
 using Mailily.Services.Exceptions;
 using Microsoft.AspNetCore.Http;
@@ -40,11 +41,19 @@ namespace Mailily.Controllers
             }
             catch (NotRespondingException)
             {
-                return NotFound();
+                var error = new Error
+                {
+                    Message = "The website did not respond"
+                };
+                return NotFound(error);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex);
+                var error = new Error
+                {
+                    Message = "Something really bad happened"
+                };
+                return BadRequest(error);
             }            
         }
     }

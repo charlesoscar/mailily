@@ -1,9 +1,12 @@
+
 import { Action, Reducer } from 'redux'
-import { EmailExtractorResponse } from '../models/EmailExtractionResponse';
+import { EmailExtractorResponse, ErrorResponse } from '../models/EmailExtractionResponse';
 import { AppThunkAction } from './'
 
 //STATE
 export interface EmailExtractionState {
+    hasError: boolean;
+    errorMessage: string;
     isLoading: boolean;
     websiteUrl: string;
     emails: EmailInfo[];
@@ -30,12 +33,20 @@ interface RemoveEmailFromListAction {
     emails: EmailInfo[];
 }
 
-//Not needing union type right now
-type KnownAction = RequestEmailsFromWebsiteAction | RecieveEmailsFromWebsiteAction | RemoveEmailFromListAction;
+interface RequestErrorAction {
+    type: 'REQUEST_ERROR'
+    error: ErrorResponse;
+}
+
+//union type 
+type KnownAction = RequestEmailsFromWebsiteAction | RecieveEmailsFromWebsiteAction | RemoveEmailFromListAction | RequestErrorAction;
 
 //ACTION CREATOR
 export const actionCreators = {
     requestEmailsFromWebsite: (websiteUrl: string): AppThunkAction<KnownAction> => async (dispatch, getState) => {
+        if(websiteUrl === ''){
+            return;
+        }
         const appState = getState();
 
         if (appState) {
@@ -44,15 +55,14 @@ export const actionCreators = {
             if (response.ok) {
                 console.log(response);
                 const data = await response.json() as EmailExtractorResponse
-                
-                console.log("fetch from api")
-                console.log(data);
-                console.log(data.email)
-                console.log(appState.emails!.emails)
-                console.log(data.email)
-                console.log(appState.emails!.emails.concat(data.email))
                 dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: appState.emails!.emails.concat(data.email)});
-            } else {
+            }
+            if(response.status === 404){
+                const data = await response.json() as ErrorResponse
+                console.log(data);
+                dispatch({type: 'REQUEST_ERROR', error: data})
+            }
+             else {
                 console.log('failed to call api', response)
             }
         }
@@ -66,7 +76,7 @@ export const actionCreators = {
 };
 
 //REDUCER
-const unloadState: EmailExtractionState = { emails: [], isLoading: false, websiteUrl: '' }
+const unloadState: EmailExtractionState = { emails: [], isLoading: false, websiteUrl: '', hasError: false, errorMessage: '' }
 
 export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionState | undefined, incomingAction: Action): EmailExtractionState => {
     if (state === undefined) {
@@ -81,6 +91,7 @@ export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionSta
             return {
                 ...state,
                 isLoading: true,
+                hasError: false
             };
         case 'RECIEVE_EMAILS_WEBSITE':
             //handle out of order responses
@@ -90,12 +101,20 @@ export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionSta
                 ...state,           
                 isLoading: false,
                 emails: action.emails,
-                websiteUrl: ''
+                websiteUrl: '',
+                hasError: false
             };
         case 'REMOVE_EMAIL_FROM_LIST':
             return {
                 ...state,
                 emails: action.emails
+            }
+        case 'REQUEST_ERROR':
+            return {
+                ...state,
+                isLoading: false,
+                hasError: true,
+                errorMessage: action.error.message
             }
         default:
             return state;

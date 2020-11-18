@@ -25,6 +25,8 @@ const loadState = () => {
             isLoading: false 
         },    
         emails: {
+            errorMessage: '',
+            hasError: false,
             emails: [],
             isLoading: false,
             websiteUrl: ''
