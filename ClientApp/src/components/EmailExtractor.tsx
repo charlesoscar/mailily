@@ -30,7 +30,6 @@ class EmailExtratcor extends React.PureComponent<EmailExtratcorProps, EmailExtra
     }
 
     public render() {
-        console.log(this.props.emails)
         return (
             <React.Fragment>
                 {this.props.hasError ? <div className="alert alert-danger">{this.props.errorMessage}</div> : null}

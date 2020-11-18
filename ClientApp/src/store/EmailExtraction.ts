@@ -53,13 +53,11 @@ export const actionCreators = {
             dispatch({ type: 'REQUEST_EMAILS_WEBSITE', websiteUrl: websiteUrl });
             const response = await fetch(`api/emailextraction?website=${websiteUrl}`);
             if (response.ok) {
-                console.log(response);
                 const data = await response.json() as EmailExtractorResponse
                 dispatch({ type: 'RECIEVE_EMAILS_WEBSITE', emails: appState.emails!.emails.concat(data.email)});
             }
             if(response.status === 404){
                 const data = await response.json() as ErrorResponse
-                console.log(data);
                 dispatch({type: 'REQUEST_ERROR', error: data})
             }
              else {
@@ -95,7 +93,6 @@ export const reducer: Reducer<EmailExtractionState> = (state: EmailExtractionSta
             };
         case 'RECIEVE_EMAILS_WEBSITE':
             //handle out of order responses
-            console.log("ACTION EMAIL",action.emails)
             return {
                 
                 ...state,           
