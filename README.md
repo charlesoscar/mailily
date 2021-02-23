@@ -1,8 +1,8 @@
 ## Mailily
 
-Simple React application that lets you input websites and retrieve email-adresses found on the website.
+Simple React application that fecthes email-adresses from websites provided by the user. 
 
 ## Stack
-.Net Core
-React
-Redux
+- .Net Core
+- React
+- Redux
